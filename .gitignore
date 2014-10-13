@@ -1,0 +1,5 @@
+messages/*.py
+messages/*.pyc
+
+!messages/__init__.py
+!messages/msgtemplate.py
