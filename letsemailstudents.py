@@ -144,9 +144,13 @@ def main():
 
     # List of test contacts (andrew ID, fullname, firstname, ...)
     testList = [tuple([CAAndrewID, CAFullName, CAName] + \
-                      ["placeholder"]*(len(emailList[0]) - 3)),
-                tuple([CAAndrewID, CAFullName+"2", CAName+"2"] + \
-                      ["placeholder"]*(len(emailList[0]) - 3))]
+                      list(emailList[0][3:]))]
+    if (len(emailList) > 1):
+        testList += [tuple([CAAndrewID, CAFullName+"2", CAName+"2"] + \
+                           list(emailList[1][3:]))]
+    else:
+        testList += [tuple([CAAndrewID, CAFullName, CAName] + \
+                           list(emailList[0][3:]))]
 
     print "Co-CA Details"
     print "###################################"
@@ -154,6 +158,7 @@ def main():
     if sendToCoCA == "N":
         coCAEmail = None
         print "Not sending to your Co-CA."
+        print
     else:
         coCAName = raw_input("What's your co-CA's name?: ")
         coCAEmail = ("%s@andrew.cmu.edu"%sendToCoCA)
@@ -161,12 +166,16 @@ def main():
         print
 
     sys.stdout.write("Cooking up your email for you")
+    sys.stdout.flush()
     time.sleep(1)
     sys.stdout.write(".")
+    sys.stdout.flush()
     time.sleep(1)
     sys.stdout.write(".")
+    sys.stdout.flush()
     time.sleep(1)
     sys.stdout.write(".\n")
+    sys.stdout.flush()
 
     printEmailPreview(testList, CAFullName, CAName, coCAEmail,
                       fromaddr, passwd, msgBase, msgVars, subjectBase)
