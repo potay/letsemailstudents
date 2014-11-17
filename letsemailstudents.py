@@ -2,6 +2,14 @@ import getpass
 import smtplib
 import sys, time
 
+############## GLOBAL SETTINGS ##############
+
+# Default formats
+GREETING = "Hey %s!"
+SIGNATURE = "Best,\n%s"
+
+##############       END       ##############
+
 def printEmailPreview(testList, CAFullName, CAName,
                      coCAEmail, fromaddr, passwd,
                      msgBase, msgVars, subjectBase):
@@ -22,13 +30,12 @@ To: %s <%s>
 CC: %s <%s>""" + coCAEmail + """
 Subject: %s
 
-Hey %s!
+""" + GREETING + """
 
 %s
 
-Best,
-%s""") % (CAFullName, fromaddr, fullname, toaddr, CAFullName, fromaddr,
-          subject, firstname, msgStudentBase, CAName)
+""" + SIGNATURE) % (CAFullName, fromaddr, fullname, toaddr, CAFullName,
+                    fromaddr, subject, firstname, msgStudentBase, CAName)
 
     # Print sample email
     print
@@ -61,13 +68,12 @@ To: %s <%s>
 CC: %s <%s>""" + coCAEmail + """
 Subject: %s
 
-Hey %s!
+""" + GREETING + """
 
 %s
 
-Best,
-%s""") % (CAFullName, fromaddr, fullname, toaddr, CAFullName, fromaddr,
-          subject, firstname, msgStudentBase, CAName)
+""" + SIGNATURE) % (CAFullName, fromaddr, fullname, toaddr, CAFullName,
+                    fromaddr, subject, firstname, msgStudentBase, CAName)
 
         # The actual mail send
         try:
