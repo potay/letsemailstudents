@@ -81,6 +81,7 @@ Subject: %s
             print "%s: Sent!" % andrewid
         except smtplib.Exception:
             print "%s: Sending failed ):"
+    print
 
 def msgSub(msgBase, details, indexList):
     detailSubs = tuple([details[i] for i in indexList])
@@ -185,7 +186,7 @@ def main():
     time.sleep(1)
     sys.stdout.write(".\n")
     sys.stdout.flush()
-    time.sleep(1)
+    time.sleep(1)g
 
     printEmailPreview(testList, CAFullName, CAName, coCAEmail,
                       fromaddr, passwd, msgBase, msgVars, subjectBase)
@@ -210,6 +211,9 @@ the actual list? (Y/N): ")
 
     if (msgSent == False):
         print "Message not sent!"
+    else:
+        print "Email is a success! Good-bye!"
+    print
 
 if __name__ == "__main__":
     main()
