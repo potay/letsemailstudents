@@ -95,14 +95,17 @@ def loginGmail():
 
     try:
         server.login(username,password)
+        print
         print "** Login success! **"
         print
         return (server, CAAndrewID, username, password)
     except smtplib.SMTPAuthenticationError:
+        print
         answer = raw_input("Oops! Login failed ): Try again? (Y/N): ")
+        print
         if (answer == "Y"):
             server.quit()
-            loginGmail()
+            return loginGmail()
         else:
             return (None, None, None, None)
 
