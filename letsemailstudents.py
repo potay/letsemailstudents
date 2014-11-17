@@ -186,7 +186,7 @@ def main():
     time.sleep(1)
     sys.stdout.write(".\n")
     sys.stdout.flush()
-    time.sleep(1)g
+    time.sleep(1)
 
     printEmailPreview(testList, CAFullName, CAName, coCAEmail,
                       fromaddr, passwd, msgBase, msgVars, subjectBase)
