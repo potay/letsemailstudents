@@ -1,19 +1,23 @@
 ############## GLOBAL SETTINGS ##############
 
 # Default formats
-GREETING = "Hey %s!"
-SIGNATURE = "Best,\n%s"
+GREETING = "Hey %s!" # Default format for email greeting. String is the
+                     # recipient's preferred name
+SIGNATURE = "Best,\n%s" # Same as greeting, just that its the email signature.
 
 # Default Settings
 COURSE_WEBSITE_URL = "http://www.cs.cmu.edu/~112"
-SYLLABUS_PAGE = "syllabus.html"
-EMAIL_DOMAIN = "andrew.cmu.edu"
-REQUIRE_GMAIL_LOGIN_DOMAIN = True
+SYLLABUS_PAGE = "syllabus.html" # Course syllabus page
+EMAIL_DOMAIN = "andrew.cmu.edu" # Domain name for all the emails
+REQUIRE_GMAIL_LOGIN_DOMAIN = True  # Set True if Gmail login requires the email
+                                   # domain as well. This is not necessary
+                                   # for personal gmail accounts.
 
 # Default User Settings
-PROMPT_FOR_DEFAULT_USER = True
-USER_FULL_NAME = "Paul Chun" #"YOUR FULL NAME"
-USER_PREFERRED_NAME = "Paul" #"YOUR PREFERRED NAME"
-USER_ANDREW_ID = "pchun1" #"YOUR ANDREW ID"
+PROMPT_FOR_DEFAULT_USER = True # Set True if you want to turn on the prompt to
+                               # use the default user.
+USER_FULL_NAME = "Paul Chun" # Your full name
+USER_PREFERRED_NAME = "Paul" # Your preferred name. Usually your first name
+USER_ANDREW_ID = "pchun1" # Your andrew ID.
 
 ################# END #################

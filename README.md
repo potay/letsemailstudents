@@ -3,6 +3,8 @@ letsemailstudents
 
 A simple tool which helps you email your CMU students easily.
 
+Before you use, ensure the settings in settings.py are correct.
+
 Steps to use:
 
 1. Create a new python message file using the message template in the 'messages' folder.
