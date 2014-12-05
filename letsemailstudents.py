@@ -1,14 +1,14 @@
 import getpass
 import smtplib
 import sys, time
+import contextlib
+import urllib
+from settings import *
 
-############## GLOBAL SETTINGS ##############
-
-# Default formats
-GREETING = "Hey %s!"
-SIGNATURE = "Best,\n%s"
-
-##############       END       ##############
+def readWebPage(url):
+    assert(url.startswith("http://"))
+    with contextlib.closing(urllib.urlopen(url)) as fin:
+        return fin.read()
 
 def printEmailPreview(testList, CAFullName, CAName,
                      coCAEmail, fromaddr, passwd,
@@ -16,7 +16,7 @@ def printEmailPreview(testList, CAFullName, CAName,
     andrewid = testList[0][0]
     firstname = testList[0][2]
     fullname = testList[0][1]
-    toaddr = "%s@andrew.cmu.edu" % andrewid
+    toaddr = "%s@%s" % (andrewid, EMAIL_DOMAIN)
     toaddrList = [toaddr, toaddr]
     subject  = '[%s] %s' % (andrewid, subjectBase)
     msgStudentBase = msgSub(msgBase, testList[0], msgVars)
@@ -54,7 +54,7 @@ def sendEmailToList(server, studentList, CAFullName, CAName,
         andrewid = studentDetails[0]
         firstname = studentDetails[2]
         fullname = studentDetails[1]
-        toaddr = "%s@andrew.cmu.edu" % andrewid
+        toaddr = "%s@%s" % (andrewid, EMAIL_DOMAIN)
         toaddrList = [toaddr, toaddr]
         subject  = '[%s] %s' % (andrewid, subjectBase)
         msgStudentBase = msgSub(msgBase, studentDetails, msgVars)
@@ -87,15 +87,21 @@ def msgSub(msgBase, details, indexList):
     detailSubs = tuple([details[i] for i in indexList])
     return msgBase % detailSubs
 
-def loginGmail():
+def loginGmail(andrewID=None):
     print "Gmail Login"
     print "###################################"
-    CAAndrewID = raw_input("What's your andrew id?: ")
-    fromaddr = "%s@andrew.cmu.edu" % CAAndrewID
-    passwd = getpass.getpass("CMU Google Apps Password? (Not Andrew Password): ")
 
-    username = fromaddr
-    password = passwd
+    if not andrewID:
+        CAAndrewID = raw_input("What's your andrew id?: ")
+    else:
+        CAAndrewID = andrewID
+
+    if REQUIRE_GMAIL_LOGIN_DOMAIN:
+        username = "%s@%s" % (CAAndrewID, EMAIL_DOMAIN)
+    else:
+        username = CAAndrewID
+
+    password = getpass.getpass("CMU Google Apps Password? (Not Andrew Password): ")
 
     server = smtplib.SMTP('smtp.gmail.com:587')
     server.starttls()
@@ -112,9 +118,37 @@ def loginGmail():
         print
         if (answer == "Y"):
             server.quit()
-            return loginGmail()
+            return loginGmail(andrewID)
         else:
             return (None, None, None, None)
+
+def getCoCAEmail(name):
+    staffPicturesURL = readWebPage(COURSE_WEBSITE_URL+"/"+SYLLABUS_PAGE).\
+                        split("staff pictures")[0].\
+                        split("href=\"")[-1].\
+                        split("\">")[0]
+    pageSource = readWebPage(COURSE_WEBSITE_URL+"/"+staffPicturesURL)
+    nameCount = pageSource.count(name)
+
+    if nameCount < 1:
+        return None
+    elif nameCount == 1:
+        CAAndrewID = pageSource[pageSource.find(name)+len(name):].\
+                        split("(")[1].\
+                        split(")")[0]
+        CAEmail = ("%s@%s" % (CAAndrewID, EMAIL_DOMAIN))
+        return [(name, coCAEmail)]
+    else:
+        CAList = []
+        for i in xrange(nameCount):
+            namePos = pageSource[pageSource.find(name):]
+            pageSource = namePos[len(name):]
+            nameSplit = namePos.split("(")
+            CAName = nameSplit[0][:-1]
+            andrewID = nameSplit[1].split(")")[0]
+            CAEmail = ("%s@%s" % (andrewID, EMAIL_DOMAIN))
+            CAList += [(CAName, CAEmail)]
+        return CAList
 
 def main():
     msgSent = False
@@ -142,11 +176,26 @@ def main():
 
     print "Your Details"
     print "###################################"
-    CAFullName = raw_input("What is your full name?: ")
-    CAName = raw_input("What is your preferred name?: ")
+
+    if PROMPT_FOR_DEFAULT_USER:
+        useDefaultUser = raw_input("Use default user details? (Y/N): ") == "Y"
+    else:
+        useDefaultUser = False
     print
 
-    (server, CAAndrewID, fromaddr, passwd) = loginGmail()
+    if not useDefaultUser:
+        CAFullName = raw_input("What is your full name?: ")
+        CAName = raw_input("What is your preferred name?: ")
+        print
+
+        (server, CAAndrewID, fromaddr, passwd) = loginGmail()
+    else:
+        CAFullName = USER_FULL_NAME
+        CAName = USER_PREFERRED_NAME
+        print "Full Name: %s\nPreferred Name: %s" % (CAFullName, CAName)
+        print
+
+        (server, CAAndrewID, fromaddr, passwd) = loginGmail(USER_ANDREW_ID)
 
     if (server == None):
         print "Unable to login to Gmail. Message not sent."
@@ -164,16 +213,44 @@ def main():
 
     print "Co-CA Details"
     print "###################################"
-    sendToCoCA = raw_input("What's your co-CA's andrew id? Enter 'N' if you do not wish to CC your co-CA: ")
+    sendToCoCA = raw_input("What's your co-CA's first name? Enter 'N' if you do not wish to CC your co-CA: ")
     if sendToCoCA == "N":
-        coCAEmail = None
+        coCAName = None
         print "Not sending to your Co-CA."
         print
     else:
-        coCAName = raw_input("What's your co-CA's name?: ")
-        coCAEmail = ("%s@andrew.cmu.edu"%sendToCoCA)
-        print "CC-ing email to %s (%s)" % (coCAName, coCAEmail)
-        print
+        coCAName = sendToCoCA
+        while True:
+            coCAEmailList = getCoCAEmail(coCAName)
+            numOfCAs = len(coCAEmailList)
+            if numOfCAs > 0:
+                if numOfCAs > 1:
+                    nameListStr = ""
+                    for i in xrange(numOfCAs):
+                        nameListStr += "%d. %s\n" % (i+1,
+                                                     coCAEmailList[i][0])
+                    while True:
+                        print "Multiple CAs with that name were found."
+                        print
+                        print nameListStr
+                        number = raw_input("Enter the number of the CA you are referring to: ")
+                        try:
+                            coCAEmail = coCAEmailList[int(number)-1][1]
+                            break
+                        except:
+                            print "Sorry, we don't understand that number. Please try again."
+                else:
+                    coCAEmail = coCAEmailList[0][1]
+
+                print "CC-ing email to %s (%s)" % (coCAName, coCAEmail)
+                print
+                break
+            else:
+                coCAName = raw_input("CA not found. Please enter your co-CA's first name again, or enter 'N' to not CC your co-CA: ")
+                if coCAName == 'N':
+                    print "Not sending to your Co-CA."
+                    print
+                    break
 
     sys.stdout.write("Cooking up your email for you")
     sys.stdout.flush()
