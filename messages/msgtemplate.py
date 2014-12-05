@@ -7,14 +7,16 @@
 # Add any extra details you need after the mandatory fields
 
 # List of students (andrew ID, fullname, firstname, ...)
-emailList = [("jdoe", "John Doe", "John"),
-             ("hpeters", "Harry Peters", "Harry")]
+emailList = [("jdoe", "John Doe", "John", "Cool"),
+             ("hpeters", "Harry Peters", "Harry", "Beans")]
 
 # Subject Settings
 subjectBase = "Lorem Ipsum"
 
 # Message Template (with string formatting)
 msgBase = """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus iaculis a libero vel viverra. Praesent eget nisi arcu. Proin sagittis finibus elit, non consectetur sem molestie nec. Suspendisse sed iaculis sem, nec ullamcorper diam. Sed viverra justo eget ligula faucibus mattis. Vestibulum rhoncus id magna dictum elementum. Cras hendrerit, risus sit amet faucibus imperdiet, eros massa dignissim sapien, in feugiat dui tellus eu odio. Integer maximus egestas nibh nec semper. Nullam pharetra magna quis lectus eleifend, et blandit tellus tincidunt. Vestibulum accumsan pulvinar egestas. Maecenas efficitur cursus purus. Aenean eget ultrices ipsum. Pellentesque sed mattis dui. Praesent sed interdum augue. Nam ut quam a elit consectetur lobortis. Pellentesque quis nisi non lorem vestibulum ornare id in turpis.
+
+%s
 
 Mauris sit amet nisl ut sapien molestie consequat. Sed quis ipsum facilisis, egestas nunc vel, iaculis felis. Donec condimentum dictum egestas. Fusce ut consectetur enim. Nullam vel leo blandit, sollicitudin eros ut, eleifend ligula. Morbi consectetur pellentesque arcu, ac accumsan felis eleifend id. Aliquam erat volutpat. Nam in lectus et purus fringilla vestibulum. Suspendisse aliquam interdum iaculis.
 
@@ -25,7 +27,7 @@ Phasellus ipsum lorem, eleifend et varius egestas, facilisis ut nisl. Nulla faci
 Phasellus euismod lacinia tortor eu tempus. Donec massa enim, mattis non risus a, lobortis placerat mi. Ut id viverra enim, sit amet consequat velit. Aenean maximus eget mauris sed venenatis. Duis ante enim, luctus vitae dui quis, ornare vehicula dolor. Mauris risus urna, eleifend eu justo eu, aliquam iaculis sem. Praesent et est vitae est dapibus euismod. Fusce tempor nisi a turpis ultricies, in sodales sem dapibus."""
 
 # List of the index of the detail tuple in order of subbing
-msgVars = []
+msgVars = [3]
 
 #########################################
 #########################################

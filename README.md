@@ -3,7 +3,7 @@ letsemailstudents
 
 A simple tool which helps you email your CMU students easily.
 
-Before you use, ensure the settings in settings.py are correct.
+Before you use, ensure the settings in settings.py are correct, and you know your gmail password (google apps password).
 
 Steps to use:
 
