@@ -1,6 +1,6 @@
-import getpass
+import getpass, string
 import smtplib
-import sys, time
+import sys, time, os
 import contextlib
 import urllib
 from settings import *
@@ -9,6 +9,32 @@ def readWebPage(url):
     assert(url.startswith("http://"))
     with contextlib.closing(urllib.urlopen(url)) as fin:
         return fin.read()
+
+def getMsgFileImportPath(msgFolder):
+    filenameList = []
+    filenamesStr = ""
+    i = 1
+    for filepath in os.listdir(msgFolder):
+        filename, fileExt = os.path.splitext(filepath)
+        if ((filename != "__init__") and
+            (fileExt == ".py")):
+            filenamesStr += "%d. %s\n" % (i, filename)
+            filenameList += [filename]
+            i += 1
+
+    print "Message Files"
+    print "###################################"
+    print
+    print filenamesStr
+    msgFileIndex = raw_input("Enter the number of the message file you want to use: ")
+    print
+
+    try:
+        chosenFilename = filenameList[int(msgFileIndex)-1]
+        return string.replace(msgFolder, "/", ".")+"."+chosenFilename
+    except:
+        print "Sorry, no such file found. Please try again"
+        return getMsgFileImportPath(msgFolder)
 
 def printEmailPreview(testList, CAFullName, CAName,
                      coCAEmail, fromaddr, passwd,
@@ -93,6 +119,7 @@ def loginGmail(andrewID=None):
 
     if not andrewID:
         CAAndrewID = raw_input("What's your andrew id?: ")
+        print
     else:
         CAAndrewID = andrewID
 
@@ -100,6 +127,9 @@ def loginGmail(andrewID=None):
         username = "%s@%s" % (CAAndrewID, EMAIL_DOMAIN)
     else:
         username = CAAndrewID
+
+    print "Email User: %s" % username
+    print
 
     password = getpass.getpass("CMU Google Apps Password? (Not Andrew Password): ")
 
@@ -123,6 +153,7 @@ def loginGmail(andrewID=None):
             return (None, None, None, None)
 
 def getCoCAEmail(name):
+    name = name.capitalize()
     staffPicturesURL = readWebPage(COURSE_WEBSITE_URL+"/"+SYLLABUS_PAGE).\
                         split("staff pictures")[0].\
                         split("href=\"")[-1].\
@@ -131,13 +162,13 @@ def getCoCAEmail(name):
     nameCount = pageSource.count(name)
 
     if nameCount < 1:
-        return None
+        return []
     elif nameCount == 1:
         CAAndrewID = pageSource[pageSource.find(name)+len(name):].\
                         split("(")[1].\
                         split(")")[0]
         CAEmail = ("%s@%s" % (CAAndrewID, EMAIL_DOMAIN))
-        return [(name, coCAEmail)]
+        return [(name, CAEmail)]
     else:
         CAList = []
         for i in xrange(nameCount):
@@ -152,12 +183,11 @@ def getCoCAEmail(name):
 
 def main():
     msgSent = False
-    msgfilename = raw_input("What is the filename of your message file (w/o extension .py)?: ")
+    msgFileImportPath = getMsgFileImportPath(MESSAGE_FOLDER)
 
     try:
-        print
-        print "Loading message file...",
-        _temp = __import__("messages.%s" % msgfilename, globals(), locals(),
+        print "Loading message file '%s'..." % msgFileImportPath,
+        _temp = __import__(msgFileImportPath, globals(), locals(),
                        ['emaiList', 'msgBase', 'msgVars', 'subjectBase'],
                        -1)
         emailList = _temp.emailList
@@ -216,6 +246,7 @@ def main():
     sendToCoCA = raw_input("What's your co-CA's first name? Enter 'N' if you do not wish to CC your co-CA: ")
     if sendToCoCA == "N":
         coCAName = None
+        coCAEmail = None
         print "Not sending to your Co-CA."
         print
     else:
@@ -248,22 +279,24 @@ def main():
             else:
                 coCAName = raw_input("CA not found. Please enter your co-CA's first name again, or enter 'N' to not CC your co-CA: ")
                 if coCAName == 'N':
+                    coCAName = None
+                    coCAEmail = None
                     print "Not sending to your Co-CA."
                     print
                     break
 
     sys.stdout.write("Cooking up your email for you")
     sys.stdout.flush()
-    time.sleep(1)
+    #time.sleep(1)
     sys.stdout.write(".")
     sys.stdout.flush()
-    time.sleep(1)
+    #time.sleep(1)
     sys.stdout.write(".")
     sys.stdout.flush()
-    time.sleep(1)
+    #time.sleep(1)
     sys.stdout.write(".\n")
     sys.stdout.flush()
-    time.sleep(1)
+    #time.sleep(1)
 
     printEmailPreview(testList, CAFullName, CAName, coCAEmail,
                       fromaddr, passwd, msgBase, msgVars, subjectBase)

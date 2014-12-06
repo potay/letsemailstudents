@@ -12,6 +12,7 @@ EMAIL_DOMAIN = "andrew.cmu.edu" # Domain name for all the emails
 REQUIRE_GMAIL_LOGIN_DOMAIN = True  # Set True if Gmail login requires the email
                                    # domain as well. This is not necessary
                                    # for personal gmail accounts.
+MESSAGE_FOLDER = "messages"
 
 # Default User Settings
 PROMPT_FOR_DEFAULT_USER = True # Set True if you want to turn on the prompt to
