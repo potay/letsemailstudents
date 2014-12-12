@@ -37,7 +37,7 @@ def getMsgFileImportPath(msgFolder):
         return getMsgFileImportPath(msgFolder)
 
 def printEmailPreview(testList, CAFullName, CAName,
-                     coCAEmail, fromaddr, passwd,
+                     coCAName, coCAEmail, fromaddr, passwd,
                      msgBase, msgVars, subjectBase):
     andrewid = testList[0][0]
     firstname = testList[0][2]
@@ -50,7 +50,7 @@ def printEmailPreview(testList, CAFullName, CAName,
         coCAEmail = ""
     else:
         toaddrList += [coCAEmail]
-        coCAEmail = (", %s" % coCAEmail)
+        coCAEmail = (", %s <%s>" % (coCAName, coCAEmail))
     msg = ("""From: %s <%s>
 To: %s <%s>
 CC: %s <%s>""" + coCAEmail + """
@@ -74,7 +74,7 @@ Subject: %s
     print
 
 def sendEmailToList(server, studentList, CAFullName, CAName,
-                    coCAEmail, fromaddr, passwd,
+                    coCAName, coCAEmail, fromaddr, passwd,
                     msgBase, msgVars, subjectBase):
     for studentDetails in studentList:
         andrewid = studentDetails[0]
@@ -88,7 +88,7 @@ def sendEmailToList(server, studentList, CAFullName, CAName,
             coCAEmail = ""
         else:
             toaddrList += [coCAEmail]
-            coCAEmail = (", %s" % coCAEmail)
+            coCAEmail = (", %s <%s>" % (coCAName, coCAEmail))
         msg = ("""From: %s <%s>
 To: %s <%s>
 CC: %s <%s>""" + coCAEmail + """
@@ -152,13 +152,22 @@ def loginGmail(andrewID=None):
         else:
             return (None, None, None, None)
 
-def getCoCAEmail(name):
-    name = name.capitalize()
+def getCoCAEmailFromPicturesPage(name):
     staffPicturesURL = readWebPage(COURSE_WEBSITE_URL+"/"+SYLLABUS_PAGE).\
                         split("staff pictures")[0].\
                         split("href=\"")[-1].\
                         split("\">")[0]
     pageSource = readWebPage(COURSE_WEBSITE_URL+"/"+staffPicturesURL)
+    return getCoCAEmailFromPageSource(name, pageSource)
+
+def getCoCAEmailFromSyllabus(name):
+    pageSource = readWebPage(COURSE_WEBSITE_URL+"/"+SYLLABUS_PAGE).\
+                        replace("\n", "").\
+                        split("Schedule<br>of Classes:")[1].\
+                        split("</table>")[0]
+    return getCoCAEmailFromPageSource(name, pageSource)
+
+def getCoCAEmailFromPageSource(name, pageSource):
     nameCount = pageSource.count(name)
 
     if nameCount < 1:
@@ -167,6 +176,8 @@ def getCoCAEmail(name):
         CAAndrewID = pageSource[pageSource.find(name)+len(name):].\
                         split("(")[1].\
                         split(")")[0]
+        name = pageSource[pageSource.find(name):].\
+                        split(" ")[0]
         CAEmail = ("%s@%s" % (CAAndrewID, EMAIL_DOMAIN))
         return [(name, CAEmail)]
     else:
@@ -180,6 +191,21 @@ def getCoCAEmail(name):
             CAEmail = ("%s@%s" % (andrewID, EMAIL_DOMAIN))
             CAList += [(CAName, CAEmail)]
         return CAList
+
+def getCoCAEmail(name):
+    name = name.capitalize()
+
+    try:
+        return getCoCAEmailFromSyllabus(name)
+    except:
+        pass
+
+    try:
+        return getCoCAEmailFromPicturesPage(name)
+    except:
+        pass
+
+    return []
 
 def main():
     msgSent = False
@@ -266,12 +292,12 @@ def main():
                         print nameListStr
                         number = raw_input("Enter the number of the CA you are referring to: ")
                         try:
-                            coCAEmail = coCAEmailList[int(number)-1][1]
+                            coCAName, coCAEmail = coCAEmailList[int(number)-1]
                             break
                         except:
                             print "Sorry, we don't understand that number. Please try again."
                 else:
-                    coCAEmail = coCAEmailList[0][1]
+                    coCAName, coCAEmail = coCAEmailList[0]
 
                 print "CC-ing email to %s (%s)" % (coCAName, coCAEmail)
                 print
@@ -298,23 +324,25 @@ def main():
     sys.stdout.flush()
     #time.sleep(1)
 
-    printEmailPreview(testList, CAFullName, CAName, coCAEmail,
+    printEmailPreview(testList, CAFullName, CAName, coCAName, coCAEmail,
                       fromaddr, passwd, msgBase, msgVars, subjectBase)
 
     continueSendingTest = raw_input("Is the sample email alright? Shall we test it by sending it to the test list? (Y/N): ")
     print
 
     if (continueSendingTest == "Y"):
-        sendEmailToList(server, testList, CAFullName, CAName, coCAEmail,
-                    fromaddr, passwd, msgBase, msgVars, subjectBase)
+        sendEmailToList(server, testList, CAFullName, CAName,
+                        coCAName, coCAEmail,
+                        fromaddr, passwd, msgBase, msgVars, subjectBase)
 
         continueSending = raw_input("Is the email alright? Shall we send it to \
 the actual list? (Y/N): ")
         print
 
         if (continueSending == "Y"):
-            sendEmailToList(server, emailList, CAFullName, CAName, coCAEmail,
-                             fromaddr, passwd, msgBase, msgVars, subjectBase)
+            sendEmailToList(server, emailList, CAFullName, CAName,
+                            coCAName, coCAEmail,
+                            fromaddr, passwd, msgBase, msgVars, subjectBase)
             msgSent = True
 
     server.quit()
