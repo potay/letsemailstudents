@@ -6,6 +6,8 @@ GREETING = "Hey %s!" # Default format for email greeting. String is the
 SIGNATURE = "Best,\n%s" # Same as greeting, just that its the email signature.
 
 # Default Settings
+USE_PERSON_API = True
+PERSON_DATA_API = "http://me.paulchun.com/apis/andrew/?andrewid="
 COURSE_WEBSITE_URL = "http://www.cs.cmu.edu/~112"
 SYLLABUS_PAGE = "syllabus.html" # Course syllabus page
 EMAIL_DOMAIN = "andrew.cmu.edu" # Domain name for all the emails

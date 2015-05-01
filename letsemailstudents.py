@@ -10,6 +10,18 @@ def readWebPage(url):
     with contextlib.closing(urllib.urlopen(url)) as fin:
         return fin.read()
 
+def getPersonData(andrewid):
+    import json
+    data = json.loads(readWebPage(PERSON_DATA_API+andrewid))
+    if data:
+        return data
+    else:
+        import random
+        firstname = random.choice(['John', 'Jack', 'Harry', 'Jane', 'Jasline', 'Hermione'])
+        lastname = random.choice(['Doe', 'Jadock', 'Dood', 'Purdle', 'Johnson', 'Granger'])
+        return {'first_name': firstname,
+                'name': firstname+" "+lastname}
+
 def getMsgFileImportPath(msgFolder):
     filenameList = []
     filenamesStr = ""
@@ -40,8 +52,13 @@ def printEmailPreview(testList, CAFullName, CAName,
                      coCAName, coCAEmail, fromaddr, passwd,
                      msgBase, msgVars, subjectBase):
     andrewid = testList[0][0]
-    firstname = testList[0][2]
-    fullname = testList[0][1]
+    if USE_PERSON_API:
+        personData = getPersonData(andrewid)
+        firstname = personData['first_name']
+        fullname = personData['name']
+    else:
+        firstname = testList[0][2]
+        fullname = testList[0][1]
     toaddr = "%s@%s" % (andrewid, EMAIL_DOMAIN)
     toaddrList = [toaddr, toaddr]
     subject  = '[%s] %s' % (andrewid, subjectBase)
@@ -78,8 +95,13 @@ def sendEmailToList(server, studentList, CAFullName, CAName,
                     msgBase, msgVars, subjectBase):
     for studentDetails in studentList:
         andrewid = studentDetails[0]
-        firstname = studentDetails[2]
-        fullname = studentDetails[1]
+        if USE_PERSON_API:
+            personData = getPersonData(andrewid)
+            firstname = personData['first_name']
+            fullname = personData['name']
+        else:
+            firstname = studentDetails[2]
+            fullname = studentDetails[1]
         toaddr = "%s@%s" % (andrewid, EMAIL_DOMAIN)
         toaddrList = [toaddr, toaddr]
         subject  = '[%s] %s' % (andrewid, subjectBase)
@@ -257,15 +279,26 @@ def main():
         print "Unable to login to Gmail. Message not sent."
         return False
 
-    # List of test contacts (andrew ID, fullname, firstname, ...)
-    testList = [tuple([CAAndrewID, CAFullName, CAName] + \
-                      list(emailList[0][3:]))]
-    if (len(emailList) > 1):
-        testList += [tuple([CAAndrewID, CAFullName+"2", CAName+"2"] + \
-                           list(emailList[1][3:]))]
+    if USE_PERSON_API:
+        # List of test contacts (andrew ID, ...)
+        testList = [tuple([CAAndrewID] + \
+                          list(emailList[0][1:]))]
+        if (len(emailList) > 1):
+            testList += [tuple([CAAndrewID] + \
+                               list(emailList[1][1:]))]
+        else:
+            testList += [tuple([CAAndrewID] + \
+                               list(emailList[0][1:]))]
     else:
-        testList += [tuple([CAAndrewID, CAFullName, CAName] + \
-                           list(emailList[0][3:]))]
+        # List of test contacts (andrew ID, fullname, firstname, ...)
+        testList = [tuple([CAAndrewID, CAFullName, CAName] + \
+                          list(emailList[0][3:]))]
+        if (len(emailList) > 1):
+            testList += [tuple([CAAndrewID, CAFullName+"2", CAName+"2"] + \
+                               list(emailList[1][3:]))]
+        else:
+            testList += [tuple([CAAndrewID, CAFullName, CAName] + \
+                               list(emailList[0][3:]))]
 
     print "Co-CA Details"
     print "###################################"

@@ -6,9 +6,11 @@
 
 # Add any extra details you need after the mandatory fields
 
-# List of students (andrew ID, fullname, firstname, ...)
-emailList = [("jdoe", "John Doe", "John", "Cool"),
-             ("hpeters", "Harry Peters", "Harry", "Beans")]
+# List of students
+# If using person api: (andrew ID, ...)
+# Else: (andrew ID, fullname, firstname, ...)
+emailList = [("jdoe", "Cool"),
+             ("hpeters", "Beans")]
 
 # Subject Settings
 subjectBase = "Lorem Ipsum"
@@ -27,7 +29,7 @@ Phasellus ipsum lorem, eleifend et varius egestas, facilisis ut nisl. Nulla faci
 Phasellus euismod lacinia tortor eu tempus. Donec massa enim, mattis non risus a, lobortis placerat mi. Ut id viverra enim, sit amet consequat velit. Aenean maximus eget mauris sed venenatis. Duis ante enim, luctus vitae dui quis, ornare vehicula dolor. Mauris risus urna, eleifend eu justo eu, aliquam iaculis sem. Praesent et est vitae est dapibus euismod. Fusce tempor nisi a turpis ultricies, in sodales sem dapibus."""
 
 # List of the index of the detail tuple in order of subbing
-msgVars = [3]
+msgVars = [1]
 
 #########################################
 #########################################
